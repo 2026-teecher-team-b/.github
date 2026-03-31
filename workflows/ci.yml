@@ -1,0 +1,38 @@
+name: Frontend CI (pnpm)
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 1. pnpm을 먼저 설치해야 합니다.
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8 # 사용 중인 pnpm 버전에 맞게 수정하세요.
+
+      # 2. Node.js 설정 및 pnpm 캐시 활성화
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm' # 캐시 대상을 pnpm으로 변경
+
+      # 3. 의존성 설치 (pnpm은 ci 대신 install --frozen-lockfile을 권장합니다)
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint check
+        run: pnpm run lint # 프로젝트에 lint 스크립트가 있을 경우
+
+      - name: Build check
+        run: pnpm run build
