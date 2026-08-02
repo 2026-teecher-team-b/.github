@@ -76,7 +76,7 @@ GitGalaxy는 GitHub 오픈소스 저장소를 **WebGL 3D 은하계**로 그려�
 
 ---
 
-## 🏗️ 아키텍처
+## 🏗️ 시스템 아키텍처
 
 <img width="1262" height="645" alt="image" src="https://github.com/user-attachments/assets/a9f3b2d6-1c78-4a73-b4a9-b503196e4910" />
 
