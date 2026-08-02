@@ -16,16 +16,41 @@
 
 ---
 
+
 ## ✨ 한눈에 보기
 
 GitGalaxy는 GitHub 오픈소스 저장소를 **WebGL 3D 은하계**로 그려냅니다.
 
 - 🌟 **별 = 저장소** — 언어별로 나선팔이 나뉘고, 활동 점수가 높을수록 은하 코어 근처에 배치
 - 🌀 **실시간 물리 엔진** — Web Worker 기반 O(n) 처리로 별들이 나선팔 위를 공전
-- 🕳️ **블랙홀** — 건강도가 낮은 저장소는 은하 중심으로 빨려드는 블랙홀로 분류
 - 🤖 **AI RAG 분석** — Vertex AI 임베딩 + pgvector 기반 저장소 의미 분석
 - 🔐 **GitHub OAuth** — 로그인 후 즐겨찾기 저장
 - 📊 **24시간 점수 추이** — GH Archive 데이터 배치 수집·정규화
+- 📈 **점수 변화 이유 분석** - 레포의 상승/하락 이유를 issue/pr/commit 활동 데이터를 바탕으로 분석
+ 
+---
+## Demo
+
+
+### 시작 페이지
+
+<img width="710" height="376" alt="스크린샷 2026-08-02 오전 9 55 34" src="https://github.com/user-attachments/assets/df864a6d-772c-46b2-a978-2ec1b261127c" />
+
+
+### 메인 페이지
+
+<img width="710" height="376" alt="Adobe Express - 화면 기록 2026-08-02 오전 10 13 35 (1)" src="https://github.com/user-attachments/assets/f17d345a-420b-415d-b1c1-4c685f6cc76f" />
+
+
+### 언어별필터
+
+<img width="710" height="376" alt="화면 기록 2026-08-02 오전 10 14 40" src="https://github.com/user-attachments/assets/1341c558-4672-4b67-adea-e15c90fcc42e" />
+
+
+
+### 레포 상세 페이지
+
+<img width="710" height="376" alt="화면 기록 2026-08-02 오전 10 13 56" src="https://github.com/user-attachments/assets/f544fde6-41bc-4362-897f-c8f3a027dd86" />
 
 ---
 
@@ -37,7 +62,7 @@ GitGalaxy는 GitHub 오픈소스 저장소를 **WebGL 3D 은하계**로 그려�
 | **Backend** | ![Java](https://img.shields.io/badge/-Java%2021-007396?logo=openjdk&logoColor=white) ![Spring Boot](https://img.shields.io/badge/-Spring%20Boot-6DB33F?logo=springboot&logoColor=white) ![Spring Security](https://img.shields.io/badge/-OAuth2-6DB33F?logo=springsecurity&logoColor=white) |
 | **Data** | ![PostgreSQL](https://img.shields.io/badge/-PostgreSQL%20%2B%20pgvector-4169E1?logo=postgresql&logoColor=white) ![Redis](https://img.shields.io/badge/-Redis-DC382D?logo=redis&logoColor=white) ![Elasticsearch](https://img.shields.io/badge/-Elasticsearch-005571?logo=elasticsearch&logoColor=white) |
 | **AI** | ![Vertex AI](https://img.shields.io/badge/-Vertex%20AI-4285F4?logo=googlecloud&logoColor=white) (Gemini · 임베딩 · RAG) |
-| **Infra** | ![Docker](https://img.shields.io/badge/-Docker-2496ED?logo=docker&logoColor=white) ![Nginx](https://img.shields.io/badge/-Nginx-009639?logo=nginx&logoColor=white) ![Prometheus](https://img.shields.io/badge/-Prometheus-E6522C?logo=prometheus&logoColor=white) ![GitHub Actions](https://img.shields.io/badge/-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white) |
+| **Infra** | ![Docker](https://img.shields.io/badge/-Docker-2496ED?logo=docker&logoColor=white) ![Nginx](https://img.shields.io/badge/-Nginx-009639?logo=nginx&logoColor=white) ![Prometheus](https://img.shields.io/badge/-Prometheus-E6522C?logo=prometheus&logoColor=white) ![GitHub Actions](https://img.shields.io/badge/-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white) ![Grafana](https://img.shields.io/badge/Grafana-F46800?logo=grafana&logoColor=white)|
 
 ---
 
@@ -53,21 +78,25 @@ GitGalaxy는 GitHub 오픈소스 저장소를 **WebGL 3D 은하계**로 그려�
 
 ## 🏗️ 아키텍처
 
+<img width="1262" height="645" alt="image" src="https://github.com/user-attachments/assets/a9f3b2d6-1c78-4a73-b4a9-b503196e4910" />
+
+
 ```
-   GitHub / GH Archive
-          │  (배치 수집)
+GitHub / GH Archive
+          │  (Batch Collection)
           ▼
-  ┌─────────────────┐    pgvector / Redis / Elasticsearch
-  │  Spring Boot    │◀──────────────────────────────────┐
-  │  REST API + RAG │── Vertex AI (Gemini · 임베딩)       │
-  └────────┬────────┘                                    │
-           │ GET /repos · /repos/rag · OAuth             │
-           ▼                                             │
-  ┌─────────────────┐                                    │
-  │  React Frontend │   physicsStore (모듈 싱글톤)         │
-  │  R3F + Three.js │── Web Worker (zero-copy Float32Array)
-  │  InstancedMesh  │   draw call 1회로 별 2000개 렌더링
-  └─────────────────┘
+   ┌─────────────────┐    pgvector / Redis / Elasticsearch
+   │  Spring Boot    │◀──────────────────────────────────┐
+   │  REST API + RAG │── Vertex AI (Gemini / Embedding)  │
+   └────────┬────────┘                                   │
+            │ GET /repos / /repos/rag / OAuth            │
+            ▼                                            │
+   ┌─────────────────┐                                   │
+   │  React Frontend │    physicsStore (Module Singleton)│
+   │  R3F + Three.js │── Web Worker (Zero-copy Float32)  │
+   │  InstancedMesh  │    2000 Stars (1 Draw Call)       │
+   └─────────────────┘                                   │
+            └────────────────────────────────────────────┘
 ```
 
 ---
